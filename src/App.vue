@@ -25,7 +25,7 @@ const createGame = () => {
   }
 };
 
-const shuffleDeck = () => {
+const shuffleDeck = async () => {
   const shuffled = [...ranImgs.value];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -33,9 +33,8 @@ const shuffleDeck = () => {
   }
   shuffledPair.value = shuffled;
   shuffledPair.value.forEach((card) => (card.checked = true));
-  setTimeout(() => {
-    shuffledPair.value.forEach((card) => (card.checked = false));
-  }, 3000);
+  await new Promise((res) => setTimeout(res, 3000));
+  shuffledPair.value.forEach((card) => (card.checked = false));
 };
 
 const startGame = () => {
@@ -96,7 +95,11 @@ const checkCard = (img) => {
     <article class="main_view">
       <ul :class="'main_board' + ' ' + isGrade">
         <li v-for="img in shuffledPair" @click="checkCard(img)">
-          <img :src="img.url" :alt="`랜덤이미지${img.id}`" class="front_face" :style="(img.checked || img.matched) && flipFront" />
+          <img
+            :src="img.url"
+            :alt="`랜덤이미지${img.id}`"
+            class="front_face"
+            :style="(img.checked || img.matched) && flipFront" />
           <img src="./assets/images/pattern.png" class="back_face" :style="(img.checked || img.matched) && flipBack" />
         </li>
       </ul>
@@ -127,7 +130,7 @@ header h1 {
   top: 30px;
   left: 50%;
   transform: translateX(-50%);
-  color: #FFB2B2;
+  color: #ffb2b2;
 }
 main {
   overflow: hidden;
@@ -172,7 +175,6 @@ ul {
   cursor: pointer;
   transition: 0.6s;
   backface-visibility: hidden;
-  /* border: 1px solid #000; */
   border-radius: 10px;
   box-sizing: border-box;
 }
@@ -182,7 +184,7 @@ ul {
   transform: rotateY(-180deg);
 }
 .main_board li .back_face {
-  border: 1px solid #FFB2B2;
+  border: 1px solid #ffb2b2;
 }
 .menu {
   color: #fff;
@@ -196,6 +198,9 @@ ul {
 .menu > li {
   margin: 100px 0;
   cursor: pointer;
+}
+.menu > li:hover {
+  color: #ffb2b2;
 }
 .menu li:nth-child(2) {
   position: relative;
@@ -223,7 +228,6 @@ ul {
   justify-content: center;
   align-items: center;
   text-align: center;
-  
 }
 .clear_msg p {
   font-size: 100px;
@@ -237,7 +241,6 @@ ul {
   cursor: pointer;
 }
 .clear_msg p:nth-child(2):hover {
-  color: #E76161;
+  color: #e76161;
 }
-
 </style>
