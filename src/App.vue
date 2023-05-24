@@ -8,12 +8,20 @@ const showGrade = ref(false);
 const isGrade = ref("");
 const clearGame = ref(false);
 
-// 카드 확인용 ref
+// 선오픈 카드 id
 const firstNum = ref(0);
+// 후오픈 카드 id
 const secondNum = ref(0);
+// 2장 오픈 제한용 count
 const count = ref(0);
+// 총 오픈된 카드 확인 count
 const totalCount = ref(0);
 
+/*
+  게임 생성
+  랜덤 이미지 배열 초기화 후 for반복문으로 객체 배열 생성
+  한 쌍의 이미지가 나와야 하므로 객체도 쌍으로 저장
+*/
 const createGame = () => {
   ranImgs.value = [];
   totalCount.value = 0;
@@ -25,6 +33,12 @@ const createGame = () => {
   }
 };
 
+/*
+  생성된 배열 셔플
+  스프레드연산자로 생성된 배열 복사 후 무작위 순서 섞기
+  shuffledPair ref에 섞인 배열 할당 후 각 카드의 checked 속성 true로 변경 -> true일시 오픈
+  * 3초 동안 오픈 후 전체 뒤집기 기능이나, 무지성으로 난이도 변경 시 로직이 꼬임. setTimeout의 비동기 동작이 문제로 보임. -> async await로 해결 안 됨.
+*/
 const shuffleDeck = async () => {
   const shuffled = [...ranImgs.value];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -37,25 +51,39 @@ const shuffleDeck = async () => {
   shuffledPair.value.forEach((card) => (card.checked = false));
 };
 
+// 게임 시작 메서드
 const startGame = () => {
   createGame();
   shuffleDeck();
 };
 
+// 난이도 변경 버튼.
+// 난이도에 따라 grid 레이아웃 변경을 위해 isGrade ref 활용
 const changeLevel = (e) => {
   length.value = e.target.value;
   isGrade.value = e.target.textContent;
   startGame();
 };
 
+// 최초 렌더링 시 자동으로 게임 생성
 onMounted(() => {
   createGame();
   shuffleDeck();
 });
 
+// 카드 뒤집는 style 객체
 const flipFront = { transform: "rotateY(0)" };
 const flipBack = { transform: "rotateY(180deg)" };
 
+/*
+  카드 클릭 메서드
+  1. 오픈된 카드 클릭 시 return
+  2. 2장만 오픈할 수 있으므로 count.value와 삼항연산자 활용.
+  3. firstNum에 선오픈 카드 secondNum에 후오픈 카드 id 저장.
+  4. 두 변수 비교 후 같으면 matched 속성 true -> 오픈 상태 유지 / 클릭 불가
+  5. 짝을 찾으면 totalCount가 올라가며 총 배열 / 2와 값이 같아지면 게임 클리어.
+  6. 짝이 아닐 시 setTimeout을 쓴 이유는 오픈한 카드를 확인할 시간이 필요하기 때문.
+*/
 const checkCard = (img) => {
   if (img.checked || img.matched) return;
   count.value < 2 ? (img.checked = !img.checked) : false;
